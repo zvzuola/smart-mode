@@ -1,0 +1,66 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+    <id>com.example.solo</id>
+
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+    <name>Solo</name>
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor email="support@yourcompany.com" url="https://www.yourcompany.com">YourCompany</vendor>
+
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
+    <description><![CDATA[
+    A plugin that provides a focused editing mode similar to IntelliJ IDEA's Zen Mode.
+    Features:
+    <ul>
+        <li>Toggle between standard mode and solo mode</li>
+        <li>Custom panel with quick actions</li>
+        <li>Main editor area with splitter support</li>
+        <li>Hide all UI distractions in solo mode</li>
+        <li>Keyboard shortcut support (Ctrl+Shift+F12)</li>
+        <li>Persistent mode state across IDE restarts</li>
+    </ul>
+  ]]></description>
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <!-- Extension points defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Application-level service for state persistence -->
+        <applicationService serviceImplementation="com.example.solo.SoloModeState"/>
+        
+        <!-- Project-level service for solo mode management -->
+        <projectService serviceImplementation="com.example.solo.SoloModeManager"/>
+        
+        <!-- Project listener for restoring mode state on startup -->
+        <projectManagerListener implementation="com.example.solo.SoloModeProjectListener"/>
+    </extensions>
+    
+    <!-- Actions -->
+    <actions>
+        <!-- Main menu action -->
+        <action id="com.example.solo.ToggleSoloModeAction"
+                class="com.example.solo.ToggleSoloModeAction"
+                text="Toggle Solo Mode"
+                description="Toggle between standard mode and solo mode">
+            <!-- Add to View menu -->
+            <add-to-group group-id="ViewMenu" anchor="last"/>
+            <!-- Keyboard shortcut: Ctrl+Shift+F12 (or Cmd+Shift+F12 on Mac) -->
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift F12"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift F12"/>
+            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta shift F12"/>
+        </action>
+        
+        <!-- Toolbar button -->
+        <group id="com.example.solo.SoloModeToolbar">
+            <reference ref="com.example.solo.ToggleSoloModeAction"/>
+        </group>
+    </actions>
+</idea-plugin>
