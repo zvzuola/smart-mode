@@ -1,5 +1,6 @@
 package com.example.solo
 
+import com.example.solo.vcoder.agent.AgentProcessManager
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.ActionManager
@@ -74,11 +75,24 @@ class SoloModeManager(private val project: Project) : Disposable {
         
         storeUIStates()
         hideAllUIComponents()
-        createSoloModeUI()
         
-        SoloModeState.getInstance().isSoloModeEnabled = true
-        
-        println("SoloMode: Solo mode activated")
+        // Block until backend is ready before creating frontend; run in background to avoid freezing EDT
+        ApplicationManager.getApplication().executeOnPooledThread {
+            try {
+                val agentManager = com.example.solo.vcoder.agent.GlobalBackendService.getInstance().getAgentAndWaitReady()
+                ApplicationManager.getApplication().invokeLater {
+                    if (!project.isDisposed) {
+                        createSoloModeUI(agentManager)
+                        SoloModeState.getInstance().isSoloModeEnabled = true
+                        println("SoloMode: Solo mode activated")
+                    }
+                }
+            } catch (e: Exception) {
+                ApplicationManager.getApplication().invokeLater {
+                    println("SoloMode: Backend failed: " + e.message)
+                }
+            }
+        }
     }
     
     fun exitSoloMode() {
@@ -253,7 +267,7 @@ class SoloModeManager(private val project: Project) : Disposable {
         return null
     }
     
-    private fun createSoloModeUI() {
+    private fun createSoloModeUI(agentManager: AgentProcessManager) {
         val ideFrameComponent = ideFrame?.component ?: return
         
         frame = SwingUtilities.getWindowAncestor(ideFrameComponent)
@@ -278,9 +292,9 @@ class SoloModeManager(private val project: Project) : Disposable {
                 editorConstraints = BorderLayout.CENTER
             }
             
-            soloModePanel = SoloModePanel(project, editorsSplitters)
+            soloModePanel = SoloModePanel(project, editorsSplitters, agentManager)
         } else {
-            soloModePanel = SoloModePanel(project, null)
+            soloModePanel = SoloModePanel(project, null, agentManager)
         }
         
         soloContentPane = JPanel(BorderLayout()).apply {
@@ -302,6 +316,7 @@ class SoloModeManager(private val project: Project) : Disposable {
         
         soloModePanel?.saveSplitterProportion()
         soloModePanel?.restoreEditorComponent()
+        soloModePanel?.disposeWebView()  // Dispose WebView only; backend stays running
         soloModePanel = null
         soloContentPane = null
         

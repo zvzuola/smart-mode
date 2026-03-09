@@ -1,0 +1,11 @@
+{
+  "name": "V-Coder",
+  "version": "0.2.0-alpha.1(开发版本)",
+  "buildDate": "2026-03-10T06:47:19.785Z",
+  "buildTimestamp": 1773125239786,
+  "buildEnv": "development",
+  "isDev": true,
+  "gitCommit": "ddfa5d2",
+  "gitCommitFull": "ddfa5d2ea77380aebb8bc2dcea0fdafe924d78b5",
+  "gitBranch": "spec_vcoder"
+}

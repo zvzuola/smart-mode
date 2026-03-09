@@ -1,0 +1,82 @@
+/**
+ * V-Coder 字体定义
+ * 
+ * 1. HarmonyOS Sans - UI 界面字体（中英文）
+ *    华为鸿蒙系统官方字体，开源
+ *    保留核心字重：400-Regular, 500-Medium, 600-Semibold
+ * 
+ * 2. Fira Code - 代码编辑器字体
+ *    专业编程字体，支持连字 (ligatures)
+ *    保留核心字重：400-Regular, 500-Medium, 600-SemiBold + 可变字体
+ */
+
+/* ============================================
+   Fira Code - 代码编辑器专用字体
+   ============================================ */
+
+/* Fira Code - Regular (400) */
+@font-face {
+  font-family: 'Fira Code';
+  src: url('./FiraCode/FiraCode-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Fira Code - Medium (500) */
+@font-face {
+  font-family: 'Fira Code';
+  src: url('./FiraCode/FiraCode-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Fira Code - SemiBold (600) */
+@font-face {
+  font-family: 'Fira Code';
+  src: url('./FiraCode/FiraCode-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Fira Code VF - 可变字体（包含所有字重 300-700）*/
+@font-face {
+  font-family: 'Fira Code VF';
+  src: url('./FiraCode/FiraCode-VF.woff2') format('woff2-variations');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================
+   HarmonyOS Sans - UI 界面字体
+   ============================================ */
+
+/* HarmonyOS Sans - Regular (400) */
+@font-face {
+  font-family: 'HarmonyOS Sans';
+  src: url('./HarmonyOS_SansSC/HarmonyOS_SansSC_Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* HarmonyOS Sans - Medium (500) */
+@font-face {
+  font-family: 'HarmonyOS Sans';
+  src: url('./HarmonyOS_SansSC/HarmonyOS_SansSC_Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* HarmonyOS Sans - Semibold (600) */
+@font-face {
+  font-family: 'HarmonyOS Sans';
+  src: url('./HarmonyOS_SansSC/HarmonyOS_SansSC_Semibold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}

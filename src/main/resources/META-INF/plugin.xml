@@ -41,6 +41,13 @@
         
         <!-- Project listener for restoring mode state on startup -->
         <projectManagerListener implementation="com.example.solo.SoloModeProjectListener"/>
+        
+        <!-- Vcoder/BitFunAI settings for embedded AI panel -->
+        <applicationService serviceImplementation="com.example.solo.vcoder.settings.VcoderSettings"/>
+        
+        <!-- Start backend when IDE/project loads; Solo mode uses this shared backend -->
+        <applicationService serviceImplementation="com.example.solo.vcoder.agent.GlobalBackendService"/>
+        <postStartupActivity implementation="com.example.solo.BackendStartupActivity"/>
     </extensions>
     
     <!-- Actions -->

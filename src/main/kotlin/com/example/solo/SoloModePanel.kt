@@ -1,5 +1,8 @@
 package com.example.solo
 
+import com.example.solo.vcoder.agent.AgentProcessManager
+import com.example.solo.vcoder.webview.WebViewPanel
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -20,25 +23,42 @@ import javax.swing.SwingConstants
 
 class SoloModePanel(
     private val project: Project,
-    private val editorsSplitters: Component?
+    private val editorsSplitters: Component?,
+    private val agentManager: AgentProcessManager?
 ) : JPanel(BorderLayout()) {
     
     private val splitter: JBSplitter
-    private val customPanel: CustomPanel
+    private val webViewPanel: WebViewPanel
     private val editorPanel: JPanel
     
     private var originalEditorParent: Container? = null
     private var isEditorMoved = false
     
     init {
-        customPanel = CustomPanel(project)
+        // Use WebViewPanel (BitFunAI page) - toolWindow=null for embedded mode
+        webViewPanel = WebViewPanel(project, null, agentManager)
         editorPanel = JPanel(BorderLayout()).apply {
             border = JBUI.Borders.empty()
         }
         
+        // Wrap WebViewPanel with header (Exit Solo Mode + Reload buttons)
+        val headerPanel = JPanel(java.awt.FlowLayout(java.awt.FlowLayout.LEFT)).apply {
+            add(javax.swing.JButton("Reload").apply {
+                toolTipText = "重新加载页面（若出现 AI未初始化 可尝试）"
+                addActionListener { webViewPanel.reloadPage() }
+            })
+            add(javax.swing.JButton("Exit Solo Mode").apply {
+                addActionListener { ToggleSoloModeAction.toggleSoloMode(project) }
+            })
+        }
+        val leftPanel = JPanel(BorderLayout()).apply {
+            add(headerPanel, BorderLayout.NORTH)
+            add(webViewPanel.component, BorderLayout.CENTER)
+        }
+        
         val state = SoloModeState.getInstance()
         splitter = JBSplitter(false, state.splitterProportion).apply {
-            firstComponent = customPanel
+            firstComponent = leftPanel
             secondComponent = editorPanel
             dividerWidth = 3
             setHonorComponentsMinimumSize(true)
@@ -95,16 +115,24 @@ class SoloModePanel(
         state.splitterProportion = splitter.proportion
     }
     
-    fun getCustomPanel(): CustomPanel = customPanel
-    
     override fun removeNotify() {
         super.removeNotify()
         saveSplitterProportion()
-        customPanel.removeBrowser()
+        disposeWebView()
+    }
+
+    /**
+     * Dispose WebViewPanel and stop the TypeScript backend when exiting Solo mode.
+     */
+    fun disposeWebView() {
+        try {
+            Disposer.dispose(webViewPanel)
+        } catch (_: Exception) {
+            // Already disposed
+        }
     }
     
     fun refresh() {
-        customPanel.addBrowser()
         revalidate()
         repaint()
     }

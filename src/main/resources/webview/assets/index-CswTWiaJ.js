@@ -1,0 +1,1 @@
+import{S as r,r as t}from"./index-BemuheHR.js";let o=!1;function e(){if(o){console.log("[RecommendationProviders] 推荐系统已初始化，跳过");return}console.log("[RecommendationProviders] 开始初始化推荐提供者..."),o=!0,console.log("[RecommendationProviders] 推荐提供者初始化完成")}export{r as SmartRecommendations,e as initRecommendationProviders,t as recommendationRegistry};
