@@ -9,16 +9,22 @@ import javax.swing.*
 
 class CustomPanel(private val project: Project) : JPanel(BorderLayout()) {
     
+    companion object {
+        private var browserInstance: JBCefBrowser? = null
+    }
+    
     private val browser: JBCefBrowser
     
     init {
-        browser = createBrowser()
+        browser = getOrCreateBrowser()
         setupUI()
     }
     
-    private fun createBrowser(): JBCefBrowser {
-        val browser = JBCefBrowser("https://www.jetbrains.com")
-        return browser
+    private fun getOrCreateBrowser(): JBCefBrowser {
+        if (browserInstance == null) {
+            browserInstance = JBCefBrowser("https://www.jetbrains.com")
+        }
+        return browserInstance!!
     }
     
     private fun setupUI() {
@@ -47,6 +53,17 @@ class CustomPanel(private val project: Project) : JPanel(BorderLayout()) {
     }
     
     fun dispose() {
-        browser.dispose()
+        // 不销毁browser实例，保持其状态
+        // browser.dispose()
+    }
+    
+    fun removeBrowser() {
+        val browserComponent = browser.component
+        remove(browserComponent)
+    }
+    
+    fun addBrowser() {
+        val browserComponent = browser.component
+        add(browserComponent, BorderLayout.CENTER)
     }
 }
