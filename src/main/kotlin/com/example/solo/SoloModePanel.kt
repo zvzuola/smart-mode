@@ -100,6 +100,7 @@ class SoloModePanel(
     override fun removeNotify() {
         super.removeNotify()
         saveSplitterProportion()
+        customPanel.dispose()
     }
     
     fun refresh() {
