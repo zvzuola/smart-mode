@@ -45,22 +45,11 @@
     
     <!-- Actions -->
     <actions>
-        <!-- Main menu action -->
         <action id="com.example.solo.ToggleSoloModeAction"
                 class="com.example.solo.ToggleSoloModeAction"
                 text="Toggle Solo Mode"
                 description="Toggle between standard mode and solo mode">
-            <!-- Add to View menu -->
-            <add-to-group group-id="ViewMenu" anchor="last"/>
-            <!-- Keyboard shortcut: Ctrl+Shift+F12 (or Cmd+Shift+F12 on Mac) -->
-            <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift F12"/>
-            <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift F12"/>
-            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta shift F12"/>
+            <add-to-group group-id="MainToolbarLeft" anchor="first"/>
         </action>
-        
-        <!-- Toolbar button -->
-        <group id="com.example.solo.SoloModeToolbar">
-            <reference ref="com.example.solo.ToggleSoloModeAction"/>
-        </group>
     </actions>
 </idea-plugin>

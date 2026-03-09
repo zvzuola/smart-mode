@@ -1,6 +1,9 @@
 package com.example.solo
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
@@ -45,6 +48,9 @@ class SoloModeManager(private val project: Project) : Disposable {
     private var editorComponent: Component? = null
     private var editorParent: Container? = null
     private var editorConstraints: Any? = null
+    
+    private val storedToolbars = mutableListOf<ActionToolbarImpl>()
+    private val originalToolbarComponents = mutableMapOf<ActionToolbarImpl, MutableList<Component>>()
     
     val isSoloModeActive: Boolean
         get() = SoloModeState.getInstance().isSoloModeEnabled
@@ -113,6 +119,35 @@ class SoloModeManager(private val project: Project) : Disposable {
         
         val statusBar = ideFrame?.statusBar
         wasStatusBarVisible = statusBar?.component?.isVisible ?: true
+        
+        storeToolbars()
+    }
+    
+    private fun storeToolbars() {
+        storedToolbars.clear()
+        originalToolbarComponents.clear()
+        
+        val ideFrameComponent = ideFrame?.component
+        if (ideFrameComponent != null) {
+            findAndStoreToolbars(ideFrameComponent)
+        }
+    }
+    
+    private fun findAndStoreToolbars(container: Container) {
+        for (component in container.components) {
+            if (component is ActionToolbarImpl) {
+                storedToolbars.add(component)
+                val components = mutableListOf<Component>()
+                for (i in 0 until component.componentCount) {
+                    components.add(component.getComponent(i))
+                }
+                originalToolbarComponents[component] = components
+            }
+            
+            if (component is Container) {
+                findAndStoreToolbars(component)
+            }
+        }
     }
     
     private fun hideAllUIComponents() {
@@ -124,6 +159,52 @@ class SoloModeManager(private val project: Project) : Disposable {
         
         val statusBar = ideFrame?.statusBar
         statusBar?.component?.isVisible = false
+        
+        hideToolbarButtons()
+    }
+    
+    private fun hideToolbarButtons() {
+        for (toolbar in storedToolbars) {
+            val components = originalToolbarComponents[toolbar]
+            if (components != null) {
+                toolbar.removeAll()
+                
+                for (component in components) {
+                    if (isSoloModeToggleButton(component)) {
+                        toolbar.add(component)
+                    }
+                }
+                
+                toolbar.updateUI()
+                toolbar.revalidate()
+                toolbar.repaint()
+            }
+        }
+    }
+    
+    private fun isSoloModeToggleButton(component: Component): Boolean {
+        // 方法1：通过Action ID识别
+        val actionManager = ActionManager.getInstance()
+        val soloModeAction = actionManager.getAction("com.example.solo.ToggleSoloModeAction")
+        
+        if (soloModeAction != null) {
+
+            // 检查是否为ActionButton或其他Action相关组件
+            try {
+                // 尝试通过反射获取action属性
+                val actionField = component.javaClass.getDeclaredField("myAction")
+                actionField.isAccessible = true
+                val action = actionField.get(component)
+                if (action != null && action == soloModeAction) {
+                    return true
+                }
+            } catch (e: Exception) {
+                // 忽略反射异常
+            }
+        }
+
+        
+        return false
     }
     
     private fun findEditorComponent(container: Container): Component? {
@@ -250,6 +331,26 @@ class SoloModeManager(private val project: Project) : Disposable {
         
         val statusBar = ideFrame?.statusBar
         statusBar?.component?.isVisible = wasStatusBarVisible
+        
+        restoreToolbarButtons()
+    }
+    
+    private fun restoreToolbarButtons() {
+        for (toolbar in storedToolbars) {
+            val components = originalToolbarComponents[toolbar]
+            if (components != null) {
+                toolbar.removeAll()
+                for (component in components) {
+                    toolbar.add(component)
+                }
+                toolbar.updateUI()
+                toolbar.revalidate()
+                toolbar.repaint()
+            }
+        }
+        
+        storedToolbars.clear()
+        originalToolbarComponents.clear()
     }
     
     override fun dispose() {
