@@ -112,7 +112,7 @@ class SoloModeManager(private val project: Project) : Disposable {
         val toolWindowManager = ToolWindowManager.getInstance(project)
         for (id in toolWindowManager.toolWindowIds) {
             val toolWindow = toolWindowManager.getToolWindow(id)
-            if (toolWindow != null) {
+            if (toolWindow != null && toolWindow.isVisible) {
                 storedToolWindowStates[id] = toolWindow.isVisible
             }
         }
@@ -152,9 +152,11 @@ class SoloModeManager(private val project: Project) : Disposable {
     
     private fun hideAllUIComponents() {
         val toolWindowManager = ToolWindowManager.getInstance(project)
-        for (id in toolWindowManager.toolWindowIds) {
+        for ((id, wasVisible) in storedToolWindowStates) {
             val toolWindow = toolWindowManager.getToolWindow(id)
-            toolWindow?.setAvailable(false, null)
+            if (toolWindow != null && wasVisible) {
+                toolWindow.hide()
+            }
         }
         
         val statusBar = ideFrame?.statusBar
@@ -322,9 +324,8 @@ class SoloModeManager(private val project: Project) : Disposable {
         val toolWindowManager = ToolWindowManager.getInstance(project)
         for ((id, wasVisible) in storedToolWindowStates) {
             val toolWindow = toolWindowManager.getToolWindow(id)
-            toolWindow?.setAvailable(true, null)
             if (toolWindow != null && wasVisible) {
-                toolWindow.activate(null)
+                toolWindow.show()
             }
         }
         storedToolWindowStates.clear()
